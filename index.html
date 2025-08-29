@@ -1,69 +1,132 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script> -->
 
     <title>JavaScript en 30 jours</title>
+     <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #taskInput {
+            padding: 8px;
+            width: 70%;
+            margin-right: 10px;
+        }
+        button {
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+        #taskList {
+            list-style: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+        #taskList li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+        .delete-btn {
+            background: none;
+            border: none;
+            color: red;
+            cursor: pointer;
+            font-size: 16px;
+        }
+    </style>
 </head>
 <body>
-    <section>
-        <h1>Bonjour la famille</h1>
-    </section>
-    <script> 
-       let compteur = 2, i = 0, nombre =[10, 20, 30] ;
-       let a = 5, b = 10;
+         <h1>Ma Liste de Tâches</h1>  
+    <div>
+        <input type="text" id="taskInput" placeholder="Entrez une nouvelle tâche...">
+        <button id="addTaskBtn">Ajouter</button>
+    </div>
+    <ul id="taskList"></ul>
+  <script>
+        //**********  AJOUTER DYNAMIQUEMENT UN ELEMENT *************
+        // 1. On sélectionne les éléments une seule fois au début
+        const taskInput = document.querySelector('#taskInput');
+        const addTaskBtn = document.querySelector ('#addTaskBtn');
+        const taskList = document.querySelector ('#taskList'); 
+      
 
-
-       console.log(`Table de multiplication de ${compteur}:`)
-       for(i = 0; i< 11; i++){
-        console.log(`${compteur} x ${i} = ${compteur * i}`);
-         };
-
-        for (let nb of nombre){
-            if(nb > 15) console.log(nb);
-         }
-
-        function addition(a, b){
-            return a + b;
+        // 2. Fonction pour créer un élément de tâche
+        function createTaskElement(taskText) {
+            const li = document.createElement("li");
+            
+            // 3. Création du texte de la tâche
+            const taskSpan = document.createElement("span");
+            taskSpan.textContent = taskText;
+            
+            // 4. Création du bouton supprimer
+            const deleteBtn = document.createElement("button");
+            deleteBtn.textContent = "❌";
+            deleteBtn.className = "delete-btn";
+            deleteBtn.setAttribute("aria-label", "Supprimer la tâche");
+            deleteBtn.addEventListener("click", () => {
+                li.remove();
+                saveTasks(); // On met à jour le stockage après suppression
+            });
+            
+            // 5. On assemble les éléments
+            li.appendChild(taskSpan);
+            li.appendChild(deleteBtn);
+            
+            return li;
         }
 
-        console.log(addition(a,b));
-
-        const multiplier = (a, b) => a * b; //Fonction flechée
-
-        console.log(multiplier(3, 15));
-
-        //Fonction est paire
-        function estPair(n){
-          return  n % 2 === 0;
+        // 6. Fonction pour sauvegarder les tâches
+        function saveTasks() {
+            const tasks = [];
+            document.querySelectorAll("#taskList li span").forEach(task => {
+                tasks.push(task.textContent);
+            });
+            localStorage.setItem("tasks", JSON.stringify(tasks));
         }
 
-        console.log(estPair(10));
-
-        let tasks = ["Apprendre JS", "Faire du Sport", "Apprendre PHP"];
-
-        //Ajouter une tâche
-        function addTask(task){
-            tasks.push(task);
+        // 7. Fonction pour charger les tâches au démarrage
+        function loadTasks() {
+            const savedTasks = localStorage.getItem("tasks");
+            if (savedTasks) {
+                JSON.parse(savedTasks).forEach(taskText => {
+                    taskList.appendChild(createTaskElement(taskText));
+                });
+            }
         }
-     
-        addTask('Apprendre Symfony')
-        addTask('Apprendre React')
 
-            //Supprimer une tâche
-        function deleteTask(index){
-            tasks.splice(index, 1);
+        // 8. Ajout d'une nouvelle tâche
+        function addTask() {
+            const taskText = taskInput.value.trim();
+            if (taskText === "") {
+                alert("Veuillez entrer une tâche valide !");
+                return;
+            }
+            
+            taskList.appendChild(createTaskElement(taskText));
+            taskInput.value = "";
+            saveTasks();
         }
-        addTask('Lire un Livre')
-        deleteTask(0)
 
-        console.log(tasks);
+        // 9. Écouteurs d'événements
+        addTaskBtn.addEventListener("click", addTask);
+        
+        // Permet d'ajouter une tâche avec la touche Entrée
+        taskInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                addTask();
+            }
+        });
 
-
-    
-
+        // 10. Chargement des tâches au démarrage
+        loadTasks();
     </script>
 
     
